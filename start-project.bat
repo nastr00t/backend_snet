@@ -1,0 +1,1 @@
+start cmd.exe /k "cd /d C:\TalentoTech\psnet\backend_snet && npm run start:watch"
