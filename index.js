@@ -1,8 +1,12 @@
 
-import express from "express";
+import express, { json, urlencoded } from "express";
 import connection from "./database/connection.js";
 import bodyParser from "body-parser";
 import cors from "cors";
+import UserRoutes from "./routes/user.js"
+import PublicationRoutes from "./routes/publication.js"
+import FollowRoutes from "./routes/follow.js"
+
 
 // Mensaje de bienvenida para verificar que ejecutó bien la API de Node
 console.log("API Node en ejecución");
@@ -25,19 +29,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Configurar rutas del aplicativo
-
-// Ruta de prueba
-app.get('/ruta-prueba', (req, res) => {
-    return res.status(200).json(
-        {
-            'id': 1,
-            'name': 'Inés María',
-            'username': 'inesmaoh'
-        }
-    );
-});
-
-
+app.use('/api/user', UserRoutes);
+app.use('/api/publication', PublicationRoutes);
+app.use('/api/follow', FollowRoutes);
 
 // Configurar el servidor Node
 app.listen(puerto, () => {
