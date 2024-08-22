@@ -1,10 +1,12 @@
+// Importar módulos
 import jwt from 'jwt-simple';
 import moment from 'moment';
-import { secret } from '../services/jwt.js';
+import { secret } from '../services/jwt.js';   // Importar la clave secreta
+
 
 // Asegurar la autenticación
 export const ensureAuth = (req, res, next) => {
-    // Comprobar si llegó la cabecera de autenticación
+    // Comprobar si llega la cabecera de autenticación
     if (!req.headers.authorization) {
         return res.status(403).send({
             status: "error",
@@ -13,7 +15,7 @@ export const ensureAuth = (req, res, next) => {
     }
 
     // Limpiar el token y quitar las comillas si las hay
-    const token = req.headers.authorization.replace(/['"]+/g, '');
+    const token = req.headers.authorization.replace(/['"]+/g, '').replace("Bearer ", "");
 
     // Decodificar el token y comprobar si ha expirado
     try {

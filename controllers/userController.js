@@ -6,7 +6,8 @@ import { createToken } from "../services/jwt.js";
 export const testUser = (req, res) => {
     return res.status(200).send(
         {
-            message: "Mensaje enviado desde User.js"
+            message: "Mensaje enviado desde User.js",
+            user: req.user
         })
 };
 // Método Registro de Usuarios
