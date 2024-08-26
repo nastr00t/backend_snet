@@ -2,7 +2,7 @@ import jwt from 'jwt-simple';
 import moment from 'moment';
 
 // Clave secreta
-const secret = 'SECRET_KEY_PROJECT_Social_net';
+const secret = process.env.SECRET_KEY;
 
 // Método para generar tokens
 const createToken = (user) => {
