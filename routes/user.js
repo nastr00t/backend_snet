@@ -26,7 +26,7 @@ router.get('/profile/:id', ensureAuth, profile);
 router.get('/list/:page?', ensureAuth, listUsers);
 router.put('/update', ensureAuth, updateUser);
 router.post('/upload-avatar', [ensureAuth, checkEntityExists(User, 'user_id'), uploads.single("file0")], uploadAvatar);
-router.get('/avatar/:file', ensureAuth, avatar); 
+router.get('/avatar/:file', avatar); 
 
 
 // Exportar el Router
