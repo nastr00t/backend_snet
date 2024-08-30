@@ -1,6 +1,6 @@
 import Follow from "../models/follows.js"
 import User from "../models/users.js"
-import { followUserIds } from "../services/followServices.js"
+import { followThisUser, followUserIds } from "../services/followServices.js"
 
 
 // Método de prueba
@@ -125,6 +125,8 @@ export const unfollow = async (req, res) => {
         // Obtener el Id del usuario que sigo y quiero dejar de seguir
         const followedId = req.params.id;
 
+        const userProfile = await User.findById(followedId).select('-password -role -email -__v');
+
         // Búsqueda de las coincidencias de ambos usuarios y elimina
         const followDeleted = await Follow.findOneAndDelete({
             following_user: userId, // quien realiza el seguimiento
@@ -139,10 +141,11 @@ export const unfollow = async (req, res) => {
             });
         }
 
+        const followInfor = await followThisUser()
         // Devolver respuesta
         return res.status(200).send({
             status: "success",
-            message: "Dejaste de seguir al usuario correctamente."
+            message: "Dejaste de seguir al usuario correctamente."+ userProfile.name
         });
 
     } catch (error) {
