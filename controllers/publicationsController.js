@@ -257,6 +257,7 @@ export const uploadMedia = async (req, res) => {
         );
 
         if (!publicationUpdated) {
+            fs.unlinkSync(largeFilePath);
             return res.status(500).send({
                 status: "error",
                 message: "Error en la subida del archivo"
