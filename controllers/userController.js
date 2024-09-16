@@ -334,50 +334,21 @@ export const updateUser = async (req, res) => {
 // Método para subir AVATAR (imagen de perfil) y actualizar el campo image del User
 export const uploadAvatar = async (req, res) => {
     try {
-        // Obtener el archivo de la imagen y comprobar si existe
+        // Verificar si se ha subido un archivo
         if (!req.file) {
-            return res.status(404).send({
+            return res.status(400).send({
                 status: "error",
                 message: "Error la petición no incluye la imagen"
             });
         }
 
-        // Obtener el nombre del archivo
-        let image = req.file.originalname;
-
-        // Obtener la extensión del archivo
-        const imageSplit = image.split(".");
-        const extension = imageSplit[imageSplit.length - 1];
-
-        // Validar la extensión
-        if (!["png", "jpg", "jpeg", "gif"]) {
-            // Borrar archivo subido
-            const filePath = req.file.path;
-            fs.unlinkSync(filePath);
-
-            return res.status(404).send({
-                status: "error",
-                message: "Extensión del archivo inválida. Solo se permite: png, jpg, jpeg, gif"
-            });
-        }
-        // Comprobar tamaño del archivo (pj: máximo 1MB)
-        const fileSize = req.file.size;
-        const maxFileSize = 1 * 1024 * 1024; // 1 MB
-
-        if (fileSize > maxFileSize) {
-            const filePath = req.file.path;
-            fs.unlinkSync(filePath);
-
-            return res.status(400).send({
-                status: "error",
-                message: "El tamaño del archivo excede el límite (máx 1 MB)"
-            });
-        }
+        // Obtener la URL del archivo subido a Cloudinary
+        const avatarUrl = req.file.path; // Esta propiedad contiene la URL de Cloudinary
 
         // Guardar la imagen en la BD
-        const userUpdated = await User.findOneAndUpdate(
-            { _id: req.user.userId },
-            { image: req.file.filename },
+        const userUpdated = await User.findByIdAndUpdate(
+            req.user.userId,
+            { image: avatarUrl },
             { new: true }
         );
 
@@ -389,11 +360,11 @@ export const uploadAvatar = async (req, res) => {
             });
         }
 
-        // Devolver respuesta exitosa 
+        // Devolver respuesta exitosa
         return res.status(200).json({
             status: "success",
             user: userUpdated,
-            file: req.file
+            file: avatarUrl
         });
 
     } catch (error) {
@@ -404,45 +375,39 @@ export const uploadAvatar = async (req, res) => {
         });
     }
 }
-//Metodo para mostrar el Avatar
+
+// Método para mostrar el AVATAR (imagen de perfil)
 export const avatar = async (req, res) => {
     try {
+        // Obtener el parámetro del archivo desde la url
+        const userId = req.params.file;
 
+        // Buscar al usuario en la base de datos para obtener la URL de Cloudinary
+        const user = await User.findById(userId).select('image');
 
-        const file = req.params.file;
-
-        // Verificar si el ID recibido del usuario autenticado existe
-        if (!file) {
+        // Verificar si el usuario existe y tiene una imagen
+        if (!user || !user.image) {
             return res.status(404).send({
                 status: "error",
-                message: "Archivo no enviado"
+                message: "No existe la imagen o el usuario"
             });
         }
-        const filePath = "./uploads/avatars/" + file;
 
-        //comprobar que si exsite el filepath
-        fs.stat(filePath, (error, exists) => {
-            if (!filePath) {
-                return res.status(404).send({
-                    status: "error",
-                    message: "Archivo no Existe"
-                });
-            }
+        // Devolver la URL de la imagen desde Cloudinary
+        return res.status(200).json({
+            status: "success",
+            imageUrl: user.image // URL de Cloudinary almacenada en la BD
         });
 
-        return res.sendFile(path.resolve(filePath));
-
     } catch (error) {
-        // Manejo de errores
-        console.log("Error al mostrar la imagen:", error);
-        // Devuelve mensaje de error
+        console.log("Error al mostrar la imagen", error)
         return res.status(500).send({
             status: "error",
-            message: error
-
+            message: "Error al mostrar la imagen"
         });
     }
 }
+
 // MEtodo para mostrar contador de seguidoresy publucaciones
 export const counters = async (req, res) => {
     try {

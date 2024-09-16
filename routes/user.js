@@ -5,19 +5,26 @@ import { ensureAuth } from "../middlewares/auth.js";
 import multer from "multer";
 import User from "../models/users.js"
 import { checkEntityExists } from "../middlewares/checkEntityExists.js"
-// configuracion de subida de archivos
-const storage = multer.diskStorage(
-    {
-        destination: (req, file, cb) => {
-            cb(null, "./uploads/avatars");
-        },
-        filename: (req, file, cb) => {
-            cb(null, "avatar-" + Date.now() + "-" + file.originalname);
-        }
-    }
-);
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 as cloudinary } from 'cloudinary';
 
-const uploads = multer({ storage });
+// Configuración de subida de archivos en Cloudinary
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avatars',
+        allowedFormats: ['jpg', 'png', 'jpeg', 'gif'],
+        public_id: (req, file) => 'avatar-' + Date.now()
+    }
+});
+
+// Configurar multer con límites de tamaño
+const uploads = multer({
+    storage: storage,
+    limits: { fileSize: 1 * 1024 * 1024 }  // Limitar tamaño a 1 MB
+});
+
+ 
 // Definir las rutas
 router.post('/register', register);
 router.post('/login', login);
